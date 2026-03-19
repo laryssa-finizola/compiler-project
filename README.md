@@ -19,9 +19,9 @@ O compilador foi desenhado para contemplar as seguintes estruturas da linguagem 
 O desenvolvimento do arquivo `.jj` foi dividido em 4 frentes principais:
 
 1. **Analisador Léxico (Dicionário e Tokens):** Laryssa Finizola - *Concluído* ✅
-2. **Analisador Sintático (Expressões e Atribuições):** [Nome do Colega 2] - *Em desenvolvimento* ⏳
-3. **Analisador Sintático (Controle de Fluxo e I/O):** [Nome do Colega 3] - *Em desenvolvimento* ⏳
-4. **Analisador Sintático (Funções e Escopo):** [Nome do Colega 4] - *Em desenvolvimento* ⏳
+2. **Analisador Sintático (Expressões e Atribuições):** [...] - *Em desenvolvimento* ⏳
+3. **Analisador Sintático (Controle de Fluxo e I/O):** [...] - *Em desenvolvimento* ⏳
+4. **Analisador Sintático (Funções e Escopo):** [...] - *Em desenvolvimento* ⏳
 
 ---
 
