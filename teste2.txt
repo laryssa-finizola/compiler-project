@@ -1,0 +1,9 @@
+int x = 5;
+if (x > 0) {
+    Console.WriteLine("positivo");
+} else {
+    Console.WriteLine("negativo");
+}
+while (x > 0) {
+    x = x - 1;
+}

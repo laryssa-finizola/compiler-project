@@ -87,9 +87,123 @@ TOKEN : {
 /* ============================================================================
                                 ANALISADOR SINTÁTICO 
    ============================================================================ */
-// Regra obrigatória para o JavaCC compilar
+
 void Inicio() :
 {}
 {
-  <EOF>
+  Programa() <EOF>
+}
+
+void Programa() :
+{}
+{
+  ( Declaracao() | Comando() )*
+}
+
+void Declaracao() :
+{}
+{
+  Tipo() <IDENTIFICADOR> [ <ATRIBUICAO> Expressao() ] <PONTO_VIRGULA>
+}
+
+void Tipo() :
+{}
+{
+  <TIPO_INT> | <TIPO_STRING> | <TIPO_FLOAT>
+}
+
+void Comando() :
+{}
+{
+  Atribuicao() | If() | While() | IO()
+}
+
+void Atribuicao() :
+{}
+{
+  <IDENTIFICADOR> <ATRIBUICAO> Expressao() <PONTO_VIRGULA>
+}
+
+void If() :
+{}
+{
+  <IF> <APARENTESES> Expressao() <FPARENTESES> <ACHAVES> ( Comando() )* <FCHAVES> [ <ELSE> <ACHAVES> ( Comando() )* <FCHAVES> ]
+}
+
+void While() :
+{}
+{
+  <WHILE> <APARENTESES> Expressao() <FPARENTESES> <ACHAVES> ( Comando() )* <FCHAVES>
+}
+
+void IO() :
+{}
+{
+  WriteLine() | ReadLine()
+}
+
+void WriteLine() :
+{}
+{
+  <CONSOLE> <PONTO> <WRITELINE> <APARENTESES> Expressao() <FPARENTESES> <PONTO_VIRGULA>
+}
+
+void ReadLine() :
+{}
+{
+  <IDENTIFICADOR> <ATRIBUICAO> <CONSOLE> <PONTO> <READLINE> <APARENTESES> <FPARENTESES> <PONTO_VIRGULA>
+}
+
+void Expressao() :
+{}
+{
+  LogicalOr()
+}
+
+void LogicalOr() :
+{}
+{
+  LogicalAnd() ( <OR> LogicalAnd() )*
+}
+
+void LogicalAnd() :
+{}
+{
+  Equality() ( <AND> Equality() )*
+}
+
+void Equality() :
+{}
+{
+  Comparison() ( ( <IGUAL_IGUAL> | <DIFERENTE> ) Comparison() )*
+}
+
+void Comparison() :
+{}
+{
+  Additive() ( ( <MAIOR> | <MENOR> | <MAIOR_IGUAL> | <MENOR_IGUAL> ) Additive() )*
+}
+
+void Additive() :
+{}
+{
+  Multiplicative() ( ( <MAIS> | <MENOS> ) Multiplicative() )*
+}
+
+void Multiplicative() :
+{}
+{
+  Unary() ( ( <MULTIPLICACAO> | <DIVISAO> ) Unary() )*
+}
+
+void Unary() :
+{}
+{
+  <NOT> Unary() | Primary()
+}
+
+void Primary() :
+{}
+{
+  <IDENTIFICADOR> | <NUMERO_INTEIRO> | <NUMERO_REAL> | <STRING> | <APARENTESES> Expressao() <FPARENTESES>
 }
