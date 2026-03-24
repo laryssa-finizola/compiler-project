@@ -3,28 +3,19 @@
 public class Compilador implements CompiladorConstants {
   public static void main(String args[]) {
     try {
-      java.io.FileInputStream arquivo = new java.io.FileInputStream("teste.txt");
+      java.io.FileInputStream arquivo = new java.io.FileInputStream("teste2.txt");
       Compilador parser = new Compilador(arquivo);
       Token t;
 
-      System.out.println("Lendo o arquivo teste.txt...");
+      System.out.println("Lendo o arquivo teste2.txt...");
 
       while ((t = parser.getNextToken()).kind != EOF) {
         System.out.println("Encontrei o Token: " + t.image);
       }
       System.out.println("Leitura finalizada com sucesso!");
 
-      System.out.println("=== TESTE SINTATICO ===");
-
-      arquivo = new java.io.FileInputStream("teste.txt");
-      Compilador.ReInit(arquivo);
-
-      parser.Inicio();
-
-System.out.println("Analise sintatica concluida com sucesso!");
-
     } catch (java.io.FileNotFoundException e) {
-      System.out.println("Erro: O arquivo 'teste.txt' nao foi encontrado.");
+      System.out.println("Erro: O arquivo 'teste2.txt' nao foi encontrado.");
     } catch (Exception e) {
       System.out.println("Erro na analise:");
       System.out.println(e.getMessage());
