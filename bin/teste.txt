@@ -1,3 +1,0 @@
-int valor = 10;
-valor = valor + 5;
-valor > 10;
