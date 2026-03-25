@@ -3,12 +3,16 @@ PARSER_BEGIN(Compilador)
 public class Compilador {
   public static void main(String args[]) {
     try {
+      // Abrindo o arquivo de teste que contém o código a ser analisado
       java.io.FileInputStream arquivo = new java.io.FileInputStream("teste.txt");
       Compilador parser = new Compilador(arquivo);
       Token t;
       
       System.out.println("Lendo o arquivo teste.txt..."); 
       
+      // Parte 1: Analisador Léxico 
+      // Aqui o parser lê o arquivo e imprime todos os tokens encontrados
+      // Ele não se importa com a ordem, apenas identifica os elementos válidos
       while ((t = parser.getNextToken()).kind != EOF) {
         System.out.println("Encontrei o Token: " + t.image);
       }
@@ -16,12 +20,15 @@ public class Compilador {
 
       System.out.println("=== TESTE SINTATICO ===");
       
+      // Reinicia o parser para análise sintática
       arquivo = new java.io.FileInputStream("teste.txt");
       Compilador.ReInit(arquivo);
 
+      // Parte 2-4: Analisador Sintático
+      // Verifica se os tokens formam frases válidas na ordem da gramática
       parser.Inicio();
 
-System.out.println("Analise sintatica concluida com sucesso!");
+      System.out.println("Analise sintatica concluida com sucesso!");
       
     } catch (java.io.FileNotFoundException e) {
       System.out.println("Erro: O arquivo 'teste.txt' nao foi encontrado.");
@@ -34,14 +41,14 @@ System.out.println("Analise sintatica concluida com sucesso!");
 
 PARSER_END(Compilador)
 
-/* ============================================================================
-                                 ANALISADOR LÉXICO 
-   ============================================================================ */
+/* ================= LÉXICO ================= */
+/* Parte 1 - Reconhece os tokens básicos do código */
 
 SKIP : {
-  " " | "\t" | "\n" | "\r"
+  " " | "\t" | "\n" | "\r" // Ignora espaços e quebras de linha
 }
 
+/* Símbolos básicos: parênteses, chaves, ponto-e-vírgula, operadores de atribuição */
 TOKEN : {
   < APARENTESES: "(" >
 | < FPARENTESES: ")" >
@@ -50,8 +57,10 @@ TOKEN : {
 | < PONTO_VIRGULA: ";" >
 | < ATRIBUICAO: "=" >
 | < VIRGULA: "," >
+| < PONTO: "." > 
 }
 
+/* Palavras reservadas da linguagem */
 TOKEN : {
   < TIPO_INT: "int" >
 | < TIPO_STRING: "string" >
@@ -59,104 +68,219 @@ TOKEN : {
 | < IF: "if" >
 | < ELSE: "else" >
 | < WHILE: "while" >
+| < VOID: "void" >
+| < RETURN: "return" >
+| < CONSOLE: "Console" >
+| < WRITELINE: "WriteLine" >
+| < READLINE: "ReadLine" >
 }
 
-TOKEN : {
-  < NUMERO_INTEIRO: ( ["0"-"9"] )+ >
-| < NUMERO_REAL: ( ["0"-"9"] )+ "." ( ["0"-"9"] )+ >
-| < STRING: "\"" ( ~["\""] )* "\"" >
-| < IDENTIFICADOR: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"] )* >
-}
-
+/* Operadores matemáticos e lógicos */
 TOKEN : {
   < MAIS: "+" >
 | < MENOS: "-" >
 | < MULTIPLICACAO: "*" >
 | < DIVISAO: "/" >
-| < MAIOR: ">" >
-| < MENOR: "<" >
 | < MAIOR_IGUAL: ">=" >
 | < MENOR_IGUAL: "<=" >
 | < IGUAL_IGUAL: "==" >
 | < DIFERENTE: "!=" >
+| < MAIOR: ">" >
+| < MENOR: "<" >
 | < AND: "&&" >
 | < OR: "||" >
 | < NOT: "!" >
 }
 
+/* Valores literais e identificadores */
 TOKEN : {
-  < CONSOLE: "Console" >
-| < WRITELINE: "WriteLine" >
-| < READLINE: "ReadLine" >
-| < PONTO: "." > 
-| < VOID: "void" >
-| < RETURN: "return" >
+  < NUMERO_REAL: ( ["0"-"9"] )+ "." ( ["0"-"9"] )+ > // números reais
+| < NUMERO_INTEIRO: ( ["0"-"9"] )+ >                 // números inteiros
+| < STRING: "\"" ( ~["\""] )* "\"" >                // textos entre aspas
+| < IDENTIFICADOR: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"] )* > // nomes de variáveis/funções
 }
 
-/* ============================================================================
-                                ANALISADOR SINTÁTICO 
-   ============================================================================ */
-// Regra obrigatória para o JavaCC compilar
+/* ================= SINTÁTICO ================= */
+/* Parte 2-4 */
+
+/* Ponto de entrada da análise sintática */
 void Inicio() :
 {}
 {
-    (Comando())* <EOF>
+  Programa() <EOF> // Todo programa deve seguir a regra Programa e terminar no EOF
 }
-void Comando() :
+
+/* Programa principal */
+void Programa() :
 {}
 {
-    LOOKAHEAD(2) Atribuicao()
-  | Declaracao()
-  | ExpressaoBooleana() <PONTO_VIRGULA>
+  // Pode conter funções, declarações ou comandos
+  // LOOKAHEAD garante que o parser sabe qual regra aplicar
+  ( LOOKAHEAD(3) Funcao() | Declaracao() | Comando() )*
 }
-void Atribuicao() :
-{}
-{
-    <IDENTIFICADOR> <ATRIBUICAO> Expressao() <PONTO_VIRGULA>
-}
-void Expressao() :
-{}
-{
-    Termo() ( ( <MAIS> | <MENOS> ) Termo() )*
-}
-void Termo() :
-{}
-{
-    Fator() ( ( <MULTIPLICACAO> | <DIVISAO> ) Fator() )*
-}
-void Fator() :
-{}
-{
-    <NUMERO_INTEIRO>
-  | <NUMERO_REAL>
-  | <IDENTIFICADOR>
-  | <STRING>
-  | <APARENTESES> Expressao() <FPARENTESES>
-}
-void ExpressaoRelacional() :
-{}
-{
-    Expressao() 
-    ( <MAIOR> 
-    | <MENOR> 
-    | <MAIOR_IGUAL> 
-    | <MENOR_IGUAL> 
-    | <IGUAL_IGUAL> 
-    | <DIFERENTE> ) 
-    Expressao()
-}
-void ExpressaoBooleana() :
-{}
-{
-    ExpressaoRelacional() 
-    ( ( <AND> | <OR> ) ExpressaoRelacional() )*
-}
+
+/* Declaração de variáveis */
 void Declaracao() :
 {}
 {
-    ( <TIPO_INT> | <TIPO_FLOAT> | <TIPO_STRING> )
-    <IDENTIFICADOR>
-    <ATRIBUICAO>
-    Expressao()
-    <PONTO_VIRGULA>
+  Tipo() <IDENTIFICADOR> [ <ATRIBUICAO> Expressao() ] <PONTO_VIRGULA>
+}
+
+/* Tipos de variáveis */
+void Tipo() :
+{}
+{
+  <TIPO_INT> | <TIPO_STRING> | <TIPO_FLOAT>
+}
+
+/* ===== PARTE 4: Funções ===== */
+
+/* Declaração de função */
+void Funcao() :
+{}
+{
+  ( Tipo() | <VOID> ) <IDENTIFICADOR>          // tipo ou void + nome da função
+  <APARENTESES> [ Parametros() ] <FPARENTESES> // parâmetros opcionais
+  <ACHAVES> ( Comando() )* [ Return() ] <FCHAVES> // corpo com comandos e retorno opcional
+}
+
+/* Lista de parâmetros da função */
+void Parametros() :
+{}
+{
+  Tipo() <IDENTIFICADOR> ( <VIRGULA> Tipo() <IDENTIFICADOR> )* // parâmetros separados por vírgula
+}
+
+/* Comando return da função */
+void Return() :
+{}
+{
+  <RETURN> Expressao() <PONTO_VIRGULA>
+}
+
+/* Chamada de função */
+void ChamadaFuncao() :
+{}
+{
+  <IDENTIFICADOR> <APARENTESES> [ Argumentos() ] <FPARENTESES> <PONTO_VIRGULA>
+}
+
+/* Argumentos passados em uma chamada de função */
+void Argumentos() :
+{}
+{
+  Expressao() ( <VIRGULA> Expressao() )*
+}
+
+/* Comandos gerais */
+void Comando() :
+{}
+{
+  LOOKAHEAD(2) Atribuicao()      // x = 5;
+| LOOKAHEAD(2) ChamadaFuncao()   // soma(2,3);
+| If()                          // if/else
+| While()                       // laço while
+| IO()                          // entrada/saída
+}
+
+/* Atribuição */
+void Atribuicao() :
+{}
+{
+  <IDENTIFICADOR> <ATRIBUICAO> Expressao() <PONTO_VIRGULA>
+}
+
+/* Estruturas condicionais */
+void If() :
+{}
+{
+  <IF> <APARENTESES> Expressao() <FPARENTESES> <ACHAVES> ( Comando() )* <FCHAVES>
+  [ <ELSE> <ACHAVES> ( Comando() )* <FCHAVES> ]
+}
+
+/* Laço de repetição while */
+void While() :
+{}
+{
+  <WHILE> <APARENTESES> Expressao() <FPARENTESES> <ACHAVES> ( Comando() )* <FCHAVES>
+}
+
+/* Entrada e saída */
+void IO() :
+{}
+{
+  WriteLine() | ReadLine()
+}
+
+void WriteLine() :
+{}
+{
+  <CONSOLE> <PONTO> <WRITELINE> <APARENTESES> Expressao() <FPARENTESES> <PONTO_VIRGULA>
+}
+
+void ReadLine() :
+{}
+{
+  <IDENTIFICADOR> <ATRIBUICAO> <CONSOLE> <PONTO> <READLINE> <APARENTESES> <FPARENTESES> <PONTO_VIRGULA>
+}
+
+/* ================= EXPRESSÕES ================= */
+/* Parte 2: Expressões e operadores */
+
+void Expressao() :
+{}
+{
+  LogicalOr()
+}
+
+void LogicalOr() :
+{}
+{
+  LogicalAnd() ( <OR> LogicalAnd() )*
+}
+
+void LogicalAnd() :
+{}
+{
+  Equality() ( <AND> Equality() )*
+}
+
+void Equality() :
+{}
+{
+  Comparison() ( ( <IGUAL_IGUAL> | <DIFERENTE> ) Comparison() )*
+}
+
+void Comparison() :
+{}
+{
+  Additive() ( ( <MAIOR> | <MENOR> | <MAIOR_IGUAL> | <MENOR_IGUAL> ) Additive() )*
+}
+
+void Additive() :
+{}
+{
+  Multiplicative() ( ( <MAIS> | <MENOS> ) Multiplicative() )*
+}
+
+void Multiplicative() :
+{}
+{
+  Unary() ( ( <MULTIPLICACAO> | <DIVISAO> ) Unary() )*
+}
+
+void Unary() :
+{}
+{
+  <NOT> Unary() | Primary()
+}
+
+void Primary() :
+{}
+{
+  <IDENTIFICADOR>
+| <NUMERO_INTEIRO>
+| <NUMERO_REAL>
+| <STRING>
+| <APARENTESES> Expressao() <FPARENTESES>
 }

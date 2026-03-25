@@ -1,7 +1,13 @@
-/Compilador.java
-/CompiladorConstants.java
-/CompiladorTokenManager.java
-/ParseException.java
-/SimpleCharStream.java
-/Token.java
-/TokenMgrError.java
+# Ignorar arquivos compilados
+src/*.class
+src/**/*.class
+
+# Ignorar os .java gerados pelo JavaCC se quiser
+# pode atrapalhar se alguém for compilar)
+# /Compilador.java
+# /CompiladorConstants.java
+# /CompiladorTokenManager.java
+# /ParseException.java
+# /SimpleCharStream.java
+# /Token.java
+# /TokenMgrError.java
