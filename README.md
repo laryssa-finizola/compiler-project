@@ -14,14 +14,6 @@ O compilador foi desenhado para contemplar as seguintes estruturas da linguagem 
 - Expressões matemáticas e lógicas.
 - Operadores relacionais, aritméticos e booleanos.
 
-## 👥 Divisão da Equipe
-
-O desenvolvimento do arquivo `.jj` foi dividido em 4 frentes principais:
-
-1. **Analisador Léxico (Dicionário e Tokens):** Laryssa Finizola - *Concluído* ✅
-2. **Analisador Sintático (Expressões e Atribuições):** Natália Maitê - *Concluído* ✅
-3. **Analisador Sintático (Controle de Fluxo e I/O):** [...] - *Em desenvolvimento* ⏳
-4. **Analisador Sintático (Funções e Escopo):** [...] - *Em desenvolvimento* ⏳
 
 ---
 
