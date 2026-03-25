@@ -30,6 +30,17 @@ Abaixo, a demonstração da CLI (Command Line Interface) do Eclipse lendo o arqu
 
 ---
 
+## 🔍 Evidência: Analisador Sintático em Ação
+
+Com a etapa léxica concluída, o analisador sintático entra em ação. Ele recebe os tokens gerados e verifica se a ordem e a estrutura lógica do código respeitam estritamente as regras gramaticais da linguagem C#.
+
+Abaixo, a demonstração do console validando um código complexo passo a passo. O compilador identifica e valida com sucesso declarações de variáveis, atribuições, declaração e chamada de funções, estruturas condicionais (`if/else`), comandos de saída (`WriteLine`) e laços de repetição (`while`):
+
+> **Nota:** O programa acompanha e imprime o status de cada estrutura gramatical reconhecida em tempo real, finalizando a análise sem encontrar nenhum erro de sintaxe.
+
+<img width="459" height="262" alt="sintatico" src="https://github.com/user-attachments/assets/a5c8df69-71b1-430b-bee2-790b742c2208" />
+
+
 ## 🛠️ Tecnologias e Pré-requisitos
 
 Para rodar este projeto na sua máquina, você precisará de:
