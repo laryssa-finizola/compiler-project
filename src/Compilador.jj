@@ -11,12 +11,10 @@ public class Compilador {
       System.out.println("Lendo o arquivo teste.txt..."); 
       
       // Parte 1: Analisador Léxico 
-      // Aqui o parser lê o arquivo e imprime todos os tokens encontrados
-      // Ele não se importa com a ordem, apenas identifica os elementos válidos
       while ((t = parser.getNextToken()).kind != EOF) {
         System.out.println("Encontrei o Token: " + t.image);
       }
-      System.out.println("Leitura finalizada com sucesso!");
+      System.out.println("Leitura finalizada com sucesso!\n");
 
       System.out.println("=== TESTE SINTATICO ===");
       
@@ -25,7 +23,6 @@ public class Compilador {
       Compilador.ReInit(arquivo);
 
       // Parte 2-4: Analisador Sintático
-      // Verifica se os tokens formam frases válidas na ordem da gramática
       parser.Inicio();
 
       System.out.println("Analise sintatica concluida com sucesso!");
@@ -90,14 +87,16 @@ TOKEN : {
 | < AND: "&&" >
 | < OR: "||" >
 | < NOT: "!" >
+| < TRUE: "true" >
+| < FALSE: "false" >
 }
 
 /* Valores literais e identificadores */
 TOKEN : {
-  < NUMERO_REAL: ( ["0"-"9"] )+ "." ( ["0"-"9"] )+ > // números reais
-| < NUMERO_INTEIRO: ( ["0"-"9"] )+ >                 // números inteiros
-| < STRING: "\"" ( ~["\""] )* "\"" >                // textos entre aspas
-| < IDENTIFICADOR: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"] )* > // nomes de variáveis/funções
+  < NUMERO_REAL: ( ["0"-"9"] )+ "." ( ["0"-"9"] )+ > 
+| < NUMERO_INTEIRO: ( ["0"-"9"] )+ >                 
+| < STRING: "\"" ( ~["\""] )* "\"" >                
+| < IDENTIFICADOR: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"] )* > 
 }
 
 /* ================= SINTÁTICO ================= */
@@ -107,15 +106,13 @@ TOKEN : {
 void Inicio() :
 {}
 {
-  Programa() <EOF> // Todo programa deve seguir a regra Programa e terminar no EOF
+  Programa() <EOF> 
 }
 
 /* Programa principal */
 void Programa() :
 {}
 {
-  // Pode conter funções, declarações ou comandos
-  // LOOKAHEAD garante que o parser sabe qual regra aplicar
   ( LOOKAHEAD(3) Funcao() | Declaracao() | Comando() )*
 }
 
@@ -124,6 +121,7 @@ void Declaracao() :
 {}
 {
   Tipo() <IDENTIFICADOR> [ <ATRIBUICAO> Expressao() ] <PONTO_VIRGULA>
+  { System.out.println(" [SINTATICO] -> Declaracao de variavel validada!"); }
 }
 
 /* Tipos de variáveis */
@@ -139,30 +137,31 @@ void Tipo() :
 void Funcao() :
 {}
 {
-  ( Tipo() | <VOID> ) <IDENTIFICADOR>          // tipo ou void + nome da função
-  <APARENTESES> [ Parametros() ] <FPARENTESES> // parâmetros opcionais
-  <ACHAVES> ( Comando() )* [ Return() ] <FCHAVES> // corpo com comandos e retorno opcional
+  ( Tipo() | <VOID> ) <IDENTIFICADOR>          
+  <APARENTESES> [ Parametros() ] <FPARENTESES> 
+  <ACHAVES> ( Comando() )* [ Return() ] <FCHAVES> 
+  { System.out.println(" [SINTATICO] -> Funcao validada com sucesso!"); }
 }
 
 /* Lista de parâmetros da função */
 void Parametros() :
 {}
 {
-  Tipo() <IDENTIFICADOR> ( <VIRGULA> Tipo() <IDENTIFICADOR> )* // parâmetros separados por vírgula
-}
+  Tipo() <IDENTIFICADOR> ( <VIRGULA> Tipo() <IDENTIFICADOR> )* }
 
 /* Comando return da função */
 void Return() :
 {}
 {
   <RETURN> Expressao() <PONTO_VIRGULA>
+  { System.out.println(" [SINTATICO] -> Comando de retorno validado!"); }
 }
 
-/* Chamada de função */
+/* Chamada de função (Sem o ponto e virgula para poder usar em contas) */
 void ChamadaFuncao() :
 {}
 {
-  <IDENTIFICADOR> <APARENTESES> [ Argumentos() ] <FPARENTESES> <PONTO_VIRGULA>
+  <IDENTIFICADOR> <APARENTESES> [ Argumentos() ] <FPARENTESES> 
 }
 
 /* Argumentos passados em uma chamada de função */
@@ -176,11 +175,11 @@ void Argumentos() :
 void Comando() :
 {}
 {
-  LOOKAHEAD(2) Atribuicao()      // x = 5;
-| LOOKAHEAD(2) ChamadaFuncao()   // soma(2,3);
-| If()                          // if/else
-| While()                       // laço while
-| IO()                          // entrada/saída
+  LOOKAHEAD(2) Atribuicao()      
+| LOOKAHEAD(2) ChamadaFuncao() <PONTO_VIRGULA> { System.out.println(" [SINTATICO] -> Chamada de funcao validada!"); }  
+| If()                          
+| While()                       
+| IO()                          
 }
 
 /* Atribuição */
@@ -188,6 +187,7 @@ void Atribuicao() :
 {}
 {
   <IDENTIFICADOR> <ATRIBUICAO> Expressao() <PONTO_VIRGULA>
+  { System.out.println(" [SINTATICO] -> Atribuicao validada!"); }
 }
 
 /* Estruturas condicionais */
@@ -196,6 +196,7 @@ void If() :
 {
   <IF> <APARENTESES> Expressao() <FPARENTESES> <ACHAVES> ( Comando() )* <FCHAVES>
   [ <ELSE> <ACHAVES> ( Comando() )* <FCHAVES> ]
+  { System.out.println(" [SINTATICO] -> Estrutura condicional (IF/ELSE) validada!"); }
 }
 
 /* Laço de repetição while */
@@ -203,25 +204,28 @@ void While() :
 {}
 {
   <WHILE> <APARENTESES> Expressao() <FPARENTESES> <ACHAVES> ( Comando() )* <FCHAVES>
+  { System.out.println(" [SINTATICO] -> Laco de repeticao (WHILE) validado!"); }
 }
 
+/* Entrada e saída */
 /* Entrada e saída */
 void IO() :
 {}
 {
-  WriteLine() | ReadLine()
+  LOOKAHEAD(3) WriteLine() | ReadLine() <PONTO_VIRGULA>
 }
 
 void WriteLine() :
 {}
 {
   <CONSOLE> <PONTO> <WRITELINE> <APARENTESES> Expressao() <FPARENTESES> <PONTO_VIRGULA>
+  { System.out.println(" [SINTATICO] -> Comando de saida (WriteLine) validado!"); }
 }
 
 void ReadLine() :
 {}
 {
-  <IDENTIFICADOR> <ATRIBUICAO> <CONSOLE> <PONTO> <READLINE> <APARENTESES> <FPARENTESES> <PONTO_VIRGULA>
+  <CONSOLE> <PONTO> <READLINE> <APARENTESES> <FPARENTESES>
 }
 
 /* ================= EXPRESSÕES ================= */
@@ -278,9 +282,13 @@ void Unary() :
 void Primary() :
 {}
 {
-  <IDENTIFICADOR>
+  LOOKAHEAD(2) ChamadaFuncao()  
+| ReadLine()                    
+| <IDENTIFICADOR>
 | <NUMERO_INTEIRO>
 | <NUMERO_REAL>
 | <STRING>
+| <TRUE>                       
+| <FALSE>                       
 | <APARENTESES> Expressao() <FPARENTESES>
 }
